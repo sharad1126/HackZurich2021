@@ -43,9 +43,12 @@ func (s *SQLiteDB) savePour(ctx context.Context) error {
 	return nil
 }
 
-func (s *SQLiteDB) retriveSite(ctx context.Context, city string, site string) ([]pourDelivery, error) {
+func (s *SQLiteDB) retriveSite(ctx context.Context, city string, site string) (pourDeliveries, error) {
 	var pours []pourDelivery
 	var pour pourDelivery
+	var siteData pourDeliveries
+	var lat float64
+	var long float64
 	if err := s.TransactContext(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		rows, err := tx.QueryContext(ctx, `
 				SELECT payloadEventArrivalTime,	payloadEventToPlantTime, locationLatitude, locationLongitude
@@ -65,13 +68,15 @@ func (s *SQLiteDB) retriveSite(ctx context.Context, city string, site string) ([
 			if err := rows.Scan(
 				&pour.StartTime,
 				&pour.EndTime,
-				&pour.Latitude,
-				&pour.Longitude,
+				&lat,
+				&long,
 			); err != nil {
 				return fmt.Errorf("server: SQLdb: failed to scan instruction row: %w", err)
 			}
 
 			pours = append(pours, pour)
+			siteData.Latitude = lat
+			siteData.Longitude = long
 		}
 		if err := rows.Err(); err != nil {
 			return fmt.Errorf("server: SQLdb: failed to scan last instruction row: %w", err)
@@ -79,10 +84,12 @@ func (s *SQLiteDB) retriveSite(ctx context.Context, city string, site string) ([
 
 		return nil
 	}); err != nil {
-		return pours, fmt.Errorf("server: SQLdb: retriveInstruction transaction failed: %w", err)
+		return siteData, fmt.Errorf("server: SQLdb: retriveInstruction transaction failed: %w", err)
 	}
 
-	return pours, nil
+	siteData.Deliveries = pours
+
+	return siteData, nil
 }
 
 func (s *SQLiteDB) Close() error {
