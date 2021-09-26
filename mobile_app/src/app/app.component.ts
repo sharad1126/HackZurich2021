@@ -1,3 +1,4 @@
+import { MapService } from './services/map.service';
 import { Component } from '@angular/core';
 
 @Component({
@@ -6,5 +7,10 @@ import { Component } from '@angular/core';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  constructor() {}
+  constructor(
+    private mapSrvc: MapService
+  ) {
+    //this.mapSrvc.loadGoogleMaps();
+  }
+
 }

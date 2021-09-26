@@ -4,20 +4,19 @@ export interface Construction {
 
 export interface City {
   city: string;
+  plants: Plants[];
+}
+
+export interface Plants {
+  name: string;
+  lat: string;
+  lon: string;
+  id: string;
   sites: Site[];
 }
 
 export interface Site {
   siteName: string;
-  planets: Planet[];
-}
-
-export interface Planet {
-  planetName: string;
-  coordinates: {
-    lat: string;
-    lon: string;
-  };
   constructions: Construction[];
 }
 
