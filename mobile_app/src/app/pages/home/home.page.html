@@ -1,0 +1,84 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button [color]="UI === 'C' ? 'warning' : ''" (click)="setUI('C')">construction</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button [color]="UI === 'S' ? 'warning' : ''" (click)="setUI('S')">Suppliers</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid class="pageServices">
+    <ion-row *ngIf="UI === 'C'" class="rowProject">
+      <ion-col>
+        <ion-item lines="none">
+          <ion-label>Concrete Project</ion-label>
+          <ion-select okText="Okay" cancelText="Dismiss" (ionChange)="onProject($event)">
+            <ion-select-option *ngFor="let p of projects" [value]="p">
+              {{ p.city + ' - ' + p.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="UI === 'S' && data" class="rowProject">
+      <ion-col size="12">
+        <ion-item lines="none">
+          <ion-label>City</ion-label>
+          <ion-select okText="Okay" cancelText="Dismiss" (ionChange)="onCity($event)">
+            <ion-select-option *ngFor="let C of data.cities" [value]="C">
+              {{ C.city }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="12">
+        <ion-item lines="none">
+          <ion-label>Site</ion-label>
+          <ion-select okText="Okay" cancelText="Dismiss" (ionChange)="onSite($event)">
+            <ion-select-option *ngFor="let S of sites" [value]="S">
+              {{ S.siteName }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="UI === null">
+      <ion-col>
+        <ion-img src="assets/logo.svg"></ion-img>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col *ngIf="weather">
+        <!-- <ion-label>Weather</ion-label> -->
+        <ion-item lines="none">
+          <ion-label>Visibility {{weather.visibility}} | Humidity {{weather.main.humidity}} | Wind {{weather.wind.speed}}</ion-label>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="project || plants" class="rowMap">
+      <ion-col>
+        <div #map id="map"></div>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="project">
+      <ion-col>
+        <div *ngIf="places > 0 else loading">
+          <ion-label color="danger">{{places}} Businesses will be affected by the construction !!</ion-label>
+          <ion-card color="warning">
+            <ion-card-content>
+              <b>Message to Business owner,</b><br>
+              A construction is planned from x to y.<br>
+              Please inform your customers.
+            </ion-card-content>
+          </ion-card>
+        </div>
+        <ng-template #loading>
+          <ion-spinner name="lines" class="ion-text-center"></ion-spinner>
+        </ng-template>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

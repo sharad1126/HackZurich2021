@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { tap, take, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -16,9 +15,15 @@ export class ConcreteService {
 
   /** get weather by coordinate */
   getWeather(lat, lon): Observable<any> {
-    console.log('checking weather', lat, lon);
+    console.log('weather', lat, lon);
     return this.http.get(
       `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${this.apiKeyWeather}`
+      );
+  }
+  getWeatherByCity(city): Observable<any> {
+    console.log('weather by city', city);
+    return this.http.get(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${this.apiKeyWeather}`
       );
   }
 }

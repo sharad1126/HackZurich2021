@@ -6,6 +6,7 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import { ElementRef, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { ConnectivityService } from './connectivity.service';
 
 declare var google: any;
@@ -28,11 +29,8 @@ export class MapService {
     private connSrvc: ConnectivityService,
   ) { }
 
-  /**
-   * reset places$
-   */
-  loadGoogleMaps(mapElement: ElementRef, lat, lon) {
-    this.places$.next(0);
+  loadGoogleMaps() {
+    // this.places = 0;
     //this.addConnectivityListeners();
     if (typeof google == 'undefined' || typeof google.maps == 'undefined' || typeof google.maps.places == 'undefined'){
       console.log('Google maps JavaScript needs to be loaded.');
@@ -41,13 +39,13 @@ export class MapService {
         console.log('online, loading map');
         //Load the SDK
         window['mapInit'] = () => {
-          this.initMap(mapElement, lat, lon);
+          // this.initMap();
           this.enableMap();
         };
         let script = document.createElement('script');
         script.id = 'googleMaps';
-        if(this.apiKey){
-          script.src = 'https://maps.google.com/maps/api/js?key=' + this.apiKey + '&callback=mapInit&libraries=places';
+        if (environment.apiKey){
+          script.src = 'https://maps.google.com/maps/api/js?key=' + environment.apiKey + '&callback=mapInit';
         } else {
           script.src = 'https://maps.google.com/maps/api/js?callback=mapInit';
         }
@@ -57,98 +55,43 @@ export class MapService {
     else {
       if (this.connSrvc.isOnline()) {
         console.log('showing map');
-        this.initMap(mapElement, lat, lon);
-        this.enableMap();
+        // this.initMap();
+        // this.enableMap();
       }
       else {
         console.log('disabling map');
-        this.disableMap();
+        // this.disableMap();
       }
     }
-  }
-
-  initMap(mapElement: ElementRef, lat, lon) {
-    this.mapInitialised = true;
-    let latLng = new google.maps.LatLng(lat, lon);
-    let mapOptions = {
-      center: latLng,
-      zoom: 15,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    this.map = new google.maps.Map(mapElement.nativeElement, mapOptions);
-    new google.maps.Marker({ position: latLng, map: this.map });
-    const marker = new google.maps.Marker({
-      position: latLng, map: this.map,
-      icon: { url: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'}
-    });
-
-    this.searchByPlace(latLng);
-  }
-
-  searchByPlace(latLng) {
-    let service = new google.maps.places.PlacesService(this.map);
-    console.log(service);
-
-    service.nearbySearch({
-      location: latLng,
-      radius: 500,
-      types: ['restaurant']
-    }, (results, status) => {
-      this.callback(results, status);
-    });
-  }
-
-  callback(results, status) {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      this.places$.next(results.length);
-      console.log('places', results);
-      for (let i = 0; i < results.length; i++) {
-        this.createMarker(results[i]);
-      }
-    }
-  }
-
-  searchByQuery() {
-    const request = {
-      query: 'Museum',
-      fields: ['name', 'geometry'],
-    };
-
-    this.service.findPlaceFromQuery(
-      request,
-      (
-        // results: google.maps.places.PlaceResult[] | null,
-        // status: google.maps.places.PlacesServiceStatus
-        results: any, status: any
-        ) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          console.log('places', results);
-          for (let i = 0; i < results.length; i++) {
-            this.createMarker(results[i]);
-          }
-
-         //this.map.setCenter(results[0].geometry!.location!);
-        }
-      }
-    );
-  }
-
-  createMarker(place: any) {
-    if (!place.geometry || !place.geometry.location) {return;}
-
-    const marker = new google.maps.Marker({
-      map: this.map,
-      position: place.geometry.location
-    });
-
-    // new google.maps.event.addListener(marker, 'click', () => {
-    //   this.infowindow.setContent(place.name || '');
-    //   this.infowindow.open(this.map);
-    // });
   }
 
   disableMap() { console.log('disable map'); }
   enableMap() { console.log('enable map'); }
+
+  // searchByQuery() {
+  //   const request = {
+  //     query: 'Museum',
+  //     fields: ['name', 'geometry'],
+  //   };
+
+  //   this.service.findPlaceFromQuery(
+  //     request,
+  //     (
+  //       // results: google.maps.places.PlaceResult[] | null,
+  //       // status: google.maps.places.PlacesServiceStatus
+  //       results: any, status: any
+  //       ) => {
+  //       if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+  //         console.log('places', results);
+  //         for (let i = 0; i < results.length; i++) {
+  //           this.createMarker(results[i]);
+  //         }
+
+  //        //this.map.setCenter(results[0].geometry!.location!);
+  //       }
+  //     }
+  //   );
+  // }
 
   // addConnectivityListeners(){
   //   let onOnline = () => {
